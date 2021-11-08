@@ -52,6 +52,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="CSVHeadersAndViewer\CObsMain.ods" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CSVHeadersAndViewer\AggregatesHeader.txt" />
+    <Content Include="CSVHeadersAndViewer\ResultsDataHeader.txt" />
+    <Content Include="CSVHeadersAndViewer\SourceDataHeader.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
