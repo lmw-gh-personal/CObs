@@ -108,8 +108,7 @@ namespace CObs
                       + (builder.Scenarios.MedianTimeToMortalityValues.Max() + 1).ToString()
                       + "."
                     );
-                }
-            
+                }            
 
                 if (keyToExit)
                 {
