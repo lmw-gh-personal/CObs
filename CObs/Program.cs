@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 /*
 *
@@ -89,9 +90,26 @@ namespace CObs
 
             SourceValidationStatus status = builder.ReadDaysRaw("SourceData.txt");
 
-            if (!status.SourceOK)
-            {
-                reportValidationError(status);
+            if (
+                (!status.SourceOK)
+            ||  (builder.ScenarioBaseDays.DaysRaw.Count
+                    <= builder.Scenarios.MedianTimeToMortalityValues.Max())
+            ) {
+                if (!status.SourceOK) { reportValidationError(status); }
+                else
+                {
+                    Console.WriteLine(
+                        "CObs build: "
+                      + "daily data must contain more rows than max median time to mortality."
+                    );
+
+                    Console.WriteLine(
+                        "CObs build: minimum number of rows is therefore currently: "
+                      + (builder.Scenarios.MedianTimeToMortalityValues.Max() + 1).ToString()
+                      + "."
+                    );
+                }
+            
 
                 if (keyToExit)
                 {
