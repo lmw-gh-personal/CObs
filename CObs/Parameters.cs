@@ -44,9 +44,9 @@ namespace CObs
     public class AllScenarios
     {
         /* civic population size for dataset (to 2 significant figures) */
-        public static int     Population = 10000000;
+        public const int      Population = 10000000;
 
-        public BaseDays       ScenarioBaseDays                    { get; private set; }
+        public BaseDays       BaseDays                            { get; private set; }
 
         public double[]       IFRValues                           { get; private set; }
         public int[]          MedianTimeToAdmissionValues         { get; private set; }
@@ -58,9 +58,9 @@ namespace CObs
 
         public List<Scenario> Scenarios                           { get; private set; }
 
-        public AllScenarios()
+        public AllScenarios(BaseDays pBaseDays)
         {
-            ScenarioBaseDays                    = new BaseDays();
+            BaseDays                            = pBaseDays;
 
             /* parameter ranges pulled from a manual (non-systematic) review of the literature */
             IFRValues                           = new double[] { 0.006 ,0.008 ,0.01 };
@@ -72,11 +72,6 @@ namespace CObs
             TransmissibilityWindowToSIValues    = new double[] { 0.8   ,0.6   ,0.5  };
 
             Scenarios                           = new List<Scenario>();
-        }
-
-        public void LoadBaseDays(BaseDays pBaseDays)
-        {
-            ScenarioBaseDays = pBaseDays;
         }
 
         public void GenerateScenarioParameters()
@@ -113,7 +108,7 @@ namespace CObs
                 ) {
                     Scenarios.Add(
                         new Scenario(
-                             ScenarioBaseDays
+                             BaseDays
                             ,new ScenarioParameters(
                                  parameters.IFR
                                 ,parameters.MedianTimeToAdmission

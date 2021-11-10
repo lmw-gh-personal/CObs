@@ -81,7 +81,7 @@ namespace CObs
             /*
                 Process command line arguments and run build.
             */
-            Builder builder   = new Builder();
+            Builder builder   = new Builder(new AllScenarios(new BaseDays()));
             bool    keyToExit = !((args.Length > 0) && (args[0] == "nokey"));
 
             Console.WriteLine(
@@ -92,7 +92,7 @@ namespace CObs
 
             if (
                 (!status.SourceOK)
-            ||  (builder.ScenarioBaseDays.DaysRaw.Count
+            ||  (builder.BaseDays.DaysRaw.Count
                     <= builder.Scenarios.MedianTimeToMortalityValues.Max())
             ) {
                 if (!status.SourceOK) { reportValidationError(status); }

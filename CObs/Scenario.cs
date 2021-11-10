@@ -77,43 +77,47 @@ namespace CObs
 
     public class Scenario
     {
-        public double                  IFR                           { get; private set; }
-        public int                     MedianTimeToAdmission         { get; private set; }
-        public int                     MedianHospitalizationDuration { get; private set; }
-        public int                     MedianTimeToMortality         { get; private set; }
-        public int                     MedianTimeFromExposureToTest  { get; private set; }
-        public double                  MedianSerialInterval          { get; private set; }
-        public double                  TransmissibilityWindowToSI    { get; private set; }
-
-        public List<DayRaw>            DaysRaw                       { get; private set; }
-        public List<DayRolling>        DaysRolling                   { get; private set; }
-        public List<DayWithAggregates> DaysWithAggregates            { get; private set; }
-        public List<DayADNCRunUp>      RunUpDays                     { get; private set; }
+        /* daily results */
+        public  List<DayWithAggregates> DaysWithAggregates            { get; private set; }
+        public  List<DayADNCRunUp>      RunUpDays                     { get; private set; }
 
         /* global growth aggregates */
-        public double                  CurrentGrowthRate             { get; private set; }
-        public decimal                 CurrentREff                   { get; private set; }
+        public  double                  CurrentGrowthRate             { get; private set; }
+        public  decimal                 CurrentREff                   { get; private set; }
 
         /* global linear aggregates */
-        public decimal                 ProjectedTotalSeroprev        { get; private set; }
-        public int                     ProjectedTotalMortality       { get; private set; }
+        public  decimal                 ProjectedTotalSeroprev        { get; private set; }
+        public  int                     ProjectedTotalMortality       { get; private set; }
+
+        /* parameters and source data */
+        private double                  ifr                           { get; set; }
+        private int                     medianTimeToAdmission         { get; set; }
+        private int                     medianHospitalizationDuration { get; set; }
+        private int                     medianTimeToMortality         { get; set; }
+        private int                     medianTimeFromExposureToTest  { get; set; }
+        private double                  medianSerialInterval          { get; set; }
+        private double                  transmissibilityWindowToSI    { get; set; }
+
+        private List<DayRaw>            daysRaw                       { get; set; }
+        private List<DayRolling>        daysRolling                   { get; set; }
 
         public Scenario(
              BaseDays           pBaseDays
             ,ScenarioParameters pScenarioParameters
         ) {
-            DaysRaw                       = pBaseDays.DaysRaw;
-            DaysRolling                   = pBaseDays.DaysRolling;
+            daysRaw                       = pBaseDays.DaysRaw;
+            daysRolling                   = pBaseDays.DaysRolling;
+
+            ifr                           = pScenarioParameters.IFR;
+            medianTimeToAdmission         = pScenarioParameters.MedianTimeToAdmission;
+            medianHospitalizationDuration = pScenarioParameters.MedianHospitalizationDuration;
+            medianTimeToMortality         = pScenarioParameters.MedianTimeToMortality;
+            medianTimeFromExposureToTest  = pScenarioParameters.MedianTimeFromExposureToTest;
+            medianSerialInterval          = pScenarioParameters.MedianSerialInterval;
+            transmissibilityWindowToSI    = pScenarioParameters.TransmissibilityWindowToSI;
+
             DaysWithAggregates            = new List<DayWithAggregates>();
             RunUpDays                     = new List<DayADNCRunUp>();
-
-            IFR                           = pScenarioParameters.IFR;
-            MedianTimeToAdmission         = pScenarioParameters.MedianTimeToAdmission;
-            MedianHospitalizationDuration = pScenarioParameters.MedianHospitalizationDuration;
-            MedianTimeToMortality         = pScenarioParameters.MedianTimeToMortality;
-            MedianTimeFromExposureToTest  = pScenarioParameters.MedianTimeFromExposureToTest;
-            MedianSerialInterval          = pScenarioParameters.MedianSerialInterval;
-            TransmissibilityWindowToSI    = pScenarioParameters.TransmissibilityWindowToSI;
         }
 
         /*
@@ -127,7 +131,7 @@ namespace CObs
         */
         private void computeAdmissionsWithChurnAndPopulateDaysWithAggregates()
         {
-            foreach (DayRolling rolling in DaysRolling)
+            foreach (DayRolling rolling in daysRolling)
             {
                 DayWithAggregates day = new DayWithAggregates(this, rolling);
 
@@ -135,30 +139,30 @@ namespace CObs
 
                 int deltaH       = (int)Math.Round(
                     rolling.Rolling5DayHospitalizations
-                  - DaysRolling[rolling.Raw.TimelineIndex - 1].Rolling5DayHospitalizations
+                  - daysRolling[rolling.Raw.TimelineIndex - 1].Rolling5DayHospitalizations
                 );
 
                 int deltaHSmooth = (int)Math.Round(
                     rolling.Rolling101DayHospitalizations
-                  - DaysRolling[rolling.Raw.TimelineIndex - 1].Rolling101DayHospitalizations
+                  - daysRolling[rolling.Raw.TimelineIndex - 1].Rolling101DayHospitalizations
                 );
 
                 int churn       = 0;
                 int churnSmooth = 0;
 
-                if (rolling.Raw.TimelineIndex < MedianHospitalizationDuration)
+                if (rolling.Raw.TimelineIndex < medianHospitalizationDuration)
                 {
                     /*
                         Assume flat prior occupancy during the run-up lag window.
                     */
                     churn       = (int)Math.Round(
                         rolling.Rolling5DayHospitalizations
-                      / MedianHospitalizationDuration
+                      / medianHospitalizationDuration
                     );
 
                     churnSmooth = (int)Math.Round(
                         rolling.Rolling101DayHospitalizations
-                      / MedianHospitalizationDuration
+                      / medianHospitalizationDuration
                     );
                 }
                 else
@@ -172,29 +176,29 @@ namespace CObs
                         where m is median duration, h is occupancy and t is time.
                     */
                     churn       = (int)Math.Round(
-                        DaysRolling.Where(
+                        daysRolling.Where(
                             recent => (
                                 (recent.Raw.TimelineIndex >=
                                     rolling.Raw.TimelineIndex
-                                  - MedianHospitalizationDuration
+                                  - medianHospitalizationDuration
                                 )
                             &&  (recent.Raw.TimelineIndex <= rolling.Raw.TimelineIndex)
                             )
                         ).Sum(integrand => integrand.Rolling5DayHospitalizations)
-                      / Math.Pow(MedianHospitalizationDuration, 2)
+                      / Math.Pow(medianHospitalizationDuration, 2)
                     );
 
                     churnSmooth = (int)Math.Round(
-                        DaysRolling.Where(
+                        daysRolling.Where(
                             recent => (
                                 (recent.Raw.TimelineIndex >=
                                     rolling.Raw.TimelineIndex
-                                  - MedianHospitalizationDuration
+                                  - medianHospitalizationDuration
                                 )
                             &&  (recent.Raw.TimelineIndex <= rolling.Raw.TimelineIndex)
                             )
                         ).Sum(integrand => integrand.Rolling101DayHospitalizations)
-                      / Math.Pow(MedianHospitalizationDuration, 2)
+                      / Math.Pow(medianHospitalizationDuration, 2)
                     );
                 }
 
@@ -225,17 +229,17 @@ namespace CObs
 
             foreach (DayWithAggregates day in DaysWithAggregates)
             {
-                if (i >= MedianTimeToMortality) { break; }
+                if (i >= medianTimeToMortality) { break; }
 
                 RunUpDays.Add(
                     new DayADNCRunUp(
-                         i - MedianTimeToMortality
-                        ,DaysRaw[0].Date.AddDays(i - MedianTimeToMortality)
+                         i - medianTimeToMortality
+                        ,daysRaw[0].Date.AddDays(i - medianTimeToMortality)
                     )
                 );
 
                 RunUpDays[i].ActualDNC = (int)Math.Round(
-                    day.Rolling.Rolling5DayMortality / IFR
+                    day.Rolling.Rolling5DayMortality / ifr
                 );
 
                 i++;
@@ -251,15 +255,15 @@ namespace CObs
 
             foreach (DayWithAggregates day in DaysWithAggregates)
             {
-                if      (i < DaysWithAggregates.Count - MedianTimeToMortality)
+                if      (i < DaysWithAggregates.Count - medianTimeToMortality)
                 {
                     day.SourcedOn = SourcedOn.MortalityAndAdmissions;
                 }
-                else if (i < DaysWithAggregates.Count - MedianTimeToAdmission)
+                else if (i < DaysWithAggregates.Count - medianTimeToAdmission)
                 {
                     day.SourcedOn = SourcedOn.AdmissionsOnly;
                 }
-                else if (i < DaysWithAggregates.Count - MedianTimeFromExposureToTest)
+                else if (i < DaysWithAggregates.Count - medianTimeFromExposureToTest)
                 {
                     day.SourcedOn = SourcedOn.TestResults;
                 }
@@ -283,8 +287,8 @@ namespace CObs
         {
             foreach (DayWithAggregates day in DaysWithAggregates)
             {
-                int mortalityWhen  = day.Raw.TimelineIndex + MedianTimeToMortality;
-                int admissionsWhen = day.Raw.TimelineIndex + MedianTimeToAdmission;
+                int mortalityWhen  = day.Raw.TimelineIndex + medianTimeToMortality;
+                int admissionsWhen = day.Raw.TimelineIndex + medianTimeToAdmission;
 
                 if (
                     (day.SourcedOn == SourcedOn.MortalityAndAdmissions)
@@ -292,7 +296,7 @@ namespace CObs
                 ) {
                     day.CasesPerAdmission = (int)Math.Round(
                         DaysWithAggregates[mortalityWhen].Rolling.Rolling101DayMortality
-                      / (IFR * DaysWithAggregates[admissionsWhen].AdmissionsWithChurnSmooth)
+                      / (ifr * DaysWithAggregates[admissionsWhen].AdmissionsWithChurnSmooth)
                     );
                 }
 
@@ -337,15 +341,15 @@ namespace CObs
                 if (day.SourcedOn == SourcedOn.MortalityAndAdmissions)
                 {
                     double casesByMortality  = (
-                        DaysRolling[
-                            day.Raw.TimelineIndex + MedianTimeToMortality
+                        daysRolling[
+                            day.Raw.TimelineIndex + medianTimeToMortality
                         ].Rolling5DayMortality
-                      / IFR
+                      / ifr
                     );
 
                     double casesByAdmissions = (
                         DaysWithAggregates[
-                            day.Raw.TimelineIndex + MedianTimeToAdmission
+                            day.Raw.TimelineIndex + medianTimeToAdmission
                         ].AdmissionsWithChurn
                       * day.CasesPerAdmission
                     );
@@ -359,7 +363,7 @@ namespace CObs
                 {
                     day.ActualDNC = (
                         DaysWithAggregates[
-                            day.Raw.TimelineIndex + MedianTimeToAdmission
+                            day.Raw.TimelineIndex + medianTimeToAdmission
                         ].AdmissionsWithChurn
                       * day.CasesPerAdmission
                     );
@@ -399,11 +403,11 @@ namespace CObs
                             (adncDays.Select(adncDay => adncDay.ActualDNC            ).Sum() / n)
                           / (dncDays.Select( dncDay  => dncDay.Rolling.Rolling5DayDNC).Sum() / m);
 
-                        testPositivityAtTZero = DaysRolling[
+                        testPositivityAtTZero = daysRolling[
                             day.Raw.TimelineIndex
                         ].Rolling5DayPositivity;
 
-                        testDeploymentAtTZero = DaysRolling[
+                        testDeploymentAtTZero = daysRolling[
                             day.Raw.TimelineIndex
                         ].Rolling5DayTests;
 
@@ -485,12 +489,12 @@ namespace CObs
 
                 day.REff = (
                     1
-                  + (day.GrowthRate * MedianSerialInterval)
+                  + (day.GrowthRate * medianSerialInterval)
                   + (
-                        (TransmissibilityWindowToSI)
-                      * (1 - TransmissibilityWindowToSI)
+                        (transmissibilityWindowToSI)
+                      * (1 - transmissibilityWindowToSI)
                       * Math.Pow(
-                           (day.GrowthRate * MedianSerialInterval)
+                           (day.GrowthRate * medianSerialInterval)
                           ,2
                         )
                     )
@@ -569,7 +573,7 @@ namespace CObs
         */
         private void extractGlobalLinearAggregates()
         {
-            int totalCumalativeMortality = DaysRaw.Sum(raw => raw.Mortality);
+            int totalCumalativeMortality = daysRaw.Sum(raw => raw.Mortality);
 
             int totalCases
               = RunUpDays.Sum(         day => day.ActualDNC)
@@ -590,7 +594,7 @@ namespace CObs
                     ||  day.SourcedOn == SourcedOn.ProjectedCases
                     )
                 ).Sum(day => day.ActualDNC)
-              * IFR
+              * ifr
             );
         }
 

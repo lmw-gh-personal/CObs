@@ -92,28 +92,29 @@ namespace CObs
 
     public class Builder
     {
-        public BaseDays         ScenarioBaseDays { get; private set; }
-        public AllScenarios     Scenarios        { get; private set; }
+        public BaseDays          BaseDays    { get; private set; }
+        public AllScenarios      Scenarios   { get; private set; }
 
-        public List<ResultsDay> ResultsDays      { get; private set; }
-        public Aggregates       Aggregates       { get; private set; }
+        private List<ResultsDay> resultsDays { get; set; }
+        private Aggregates       aggregates  { get; set; }
 
-        public Builder()
-        {
-            ScenarioBaseDays = new BaseDays();
-            Scenarios        = new AllScenarios();
-            ResultsDays      = new List<ResultsDay>();
-            Aggregates       = new Aggregates();
+        public Builder(
+            AllScenarios pScenarios
+        ) {
+            BaseDays    = pScenarios.BaseDays;
+            Scenarios   = pScenarios;
+
+            resultsDays = new List<ResultsDay>();
+            aggregates  = new Aggregates();
         }
 
         public SourceValidationStatus ReadDaysRaw(string pFilename)
         {
-            return ScenarioBaseDays.ReadDaysRaw(pFilename);
+            return BaseDays.ReadDaysRaw(pFilename);
         }
 
         public void GenerateScenarios()
         {
-            Scenarios.LoadBaseDays(ScenarioBaseDays);
             Scenarios.GenerateScenarioParameters();
         }
 
@@ -136,7 +137,7 @@ namespace CObs
                 scenario => scenario.RunUpDays
             ).Select(day => day.TimelineIndex).Min();
 
-            int maxTimelineIndex = ScenarioBaseDays.DaysRaw.Select(
+            int maxTimelineIndex = BaseDays.DaysRaw.Select(
                 day => day.TimelineIndex
             ).Max();
 
@@ -219,7 +220,7 @@ namespace CObs
                         foundMaxElements       = true;
                     }
 
-                    resultDay.Date             = ScenarioBaseDays.DaysRaw.Where(
+                    resultDay.Date             = BaseDays.DaysRaw.Where(
                         day      => day.TimelineIndex == resultDay.TimelineIndex
                     ).First().Date;
 
@@ -247,35 +248,35 @@ namespace CObs
                         day      => day.ActualDNC
                     ).First();
 
-                    resultDay.Mortality                         = ScenarioBaseDays.DaysRaw[
+                    resultDay.Mortality                         = BaseDays.DaysRaw[
                         resultDay.TimelineIndex
                     ].Mortality;
 
-                    resultDay.Hospitalizations                  = ScenarioBaseDays.DaysRaw[
+                    resultDay.Hospitalizations                  = BaseDays.DaysRaw[
                         resultDay.TimelineIndex
                     ].Hospitalizations;
 
-                    resultDay.Tests                             = ScenarioBaseDays.DaysRaw[
+                    resultDay.Tests                             = BaseDays.DaysRaw[
                         resultDay.TimelineIndex
                     ].Tests;
 
-                    resultDay.Positivity                        = ScenarioBaseDays.DaysRaw[
+                    resultDay.Positivity                        = BaseDays.DaysRaw[
                         resultDay.TimelineIndex
                     ].Positivity;
 
-                    resultDay.Rolling5DayMortality              = ScenarioBaseDays.DaysRolling[
+                    resultDay.Rolling5DayMortality              = BaseDays.DaysRolling[
                         resultDay.TimelineIndex
                     ].Rolling5DayMortality;
 
-                    resultDay.Rolling5DayHospitalizations       = ScenarioBaseDays.DaysRolling[
+                    resultDay.Rolling5DayHospitalizations       = BaseDays.DaysRolling[
                         resultDay.TimelineIndex
                     ].Rolling5DayHospitalizations;
 
-                    resultDay.Rolling5DayTests                  = ScenarioBaseDays.DaysRolling[
+                    resultDay.Rolling5DayTests                  = BaseDays.DaysRolling[
                         resultDay.TimelineIndex
                     ].Rolling5DayTests;
 
-                    resultDay.Rolling5DayPositivity             = ScenarioBaseDays.DaysRolling[
+                    resultDay.Rolling5DayPositivity             = BaseDays.DaysRolling[
                         resultDay.TimelineIndex
                     ].Rolling5DayPositivity;
 
@@ -308,7 +309,7 @@ namespace CObs
                     resultDay.DoublingTimeUpperBound            = upper.DoublingTime;
                 }
 
-                ResultsDays.Add(resultDay);
+                resultsDays.Add(resultDay);
             }
         }
 
@@ -324,7 +325,7 @@ namespace CObs
             List<double>  currentGrowthRate = new List<double>();
             List<decimal> currentREff       = new List<decimal>();
 
-            int           maxTimelineIndex  = ScenarioBaseDays.DaysRaw.Select(
+            int           maxTimelineIndex  = BaseDays.DaysRaw.Select(
                 day      => day.TimelineIndex
             ).Max();
 
@@ -393,21 +394,21 @@ namespace CObs
             List<double>  rangedGrowth    = currentGrowthRate.OrderBy(r => r).ToList();
             List<decimal> rangedREff      = currentREff.OrderBy(      r => r).ToList();
 
-            Aggregates.ProjectedTotalMortalityLowerBound = rangedMortality[0];
-            Aggregates.ProjectedTotalMortalityBaseline   = rangedMortality[1];
-            Aggregates.ProjectedTotalMortalityUpperBound = rangedMortality[2];
+            aggregates.ProjectedTotalMortalityLowerBound = rangedMortality[0];
+            aggregates.ProjectedTotalMortalityBaseline   = rangedMortality[1];
+            aggregates.ProjectedTotalMortalityUpperBound = rangedMortality[2];
 
-            Aggregates.ProjectedTotalSeroprevLowerBound  = rangedSeroPrev[0];
-            Aggregates.ProjectedTotalSeroprevBaseline    = rangedSeroPrev[1];
-            Aggregates.ProjectedTotalSeroprevUpperBound  = rangedSeroPrev[2];
+            aggregates.ProjectedTotalSeroprevLowerBound  = rangedSeroPrev[0];
+            aggregates.ProjectedTotalSeroprevBaseline    = rangedSeroPrev[1];
+            aggregates.ProjectedTotalSeroprevUpperBound  = rangedSeroPrev[2];
 
             double growthRateLowerBound                  = rangedGrowth[0];
             double growthRateBaseline                    = rangedGrowth[1];
             double growthRateUpperBound                  = rangedGrowth[2];
 
-            Aggregates.CurrentREffLowerBound             = Math.Round(rangedREff[0] ,2);
-            Aggregates.CurrentREffBaseline               = Math.Round(rangedREff[1] ,2);
-            Aggregates.CurrentREffUpperBound             = Math.Round(rangedREff[2] ,2);
+            aggregates.CurrentREffLowerBound             = Math.Round(rangedREff[0] ,2);
+            aggregates.CurrentREffBaseline               = Math.Round(rangedREff[1] ,2);
+            aggregates.CurrentREffUpperBound             = Math.Round(rangedREff[2] ,2);
 
             if (!
                 (
@@ -418,9 +419,9 @@ namespace CObs
                 ||  growthRateLowerBound > 0.02
                 )
             ) {
-                Aggregates.CurrentDoublingTimeLowerBound = 0;
+                aggregates.CurrentDoublingTimeLowerBound = 0;
             } else {
-                Aggregates.CurrentDoublingTimeLowerBound = (int)Math.Round(
+                aggregates.CurrentDoublingTimeLowerBound = (int)Math.Round(
                     Math.Log(2) / Math.Log(1 + growthRateLowerBound)
                 );
             }
@@ -434,9 +435,9 @@ namespace CObs
                 ||  growthRateBaseline > 0.02
                 )
             ) {
-                Aggregates.CurrentDoublingTimeBaseline = 0;
+                aggregates.CurrentDoublingTimeBaseline = 0;
             } else {
-                Aggregates.CurrentDoublingTimeBaseline = (int)Math.Round(
+                aggregates.CurrentDoublingTimeBaseline = (int)Math.Round(
                     Math.Log(2) / Math.Log(1 + growthRateBaseline)
                 );
             }
@@ -450,23 +451,23 @@ namespace CObs
                 ||  growthRateUpperBound > 0.02
                 )
             ) {
-                Aggregates.CurrentDoublingTimeUpperBound = 0;
+                aggregates.CurrentDoublingTimeUpperBound = 0;
             } else {
-                Aggregates.CurrentDoublingTimeUpperBound = (int)Math.Round(
+                aggregates.CurrentDoublingTimeUpperBound = (int)Math.Round(
                     Math.Log(2) / Math.Log(1 + growthRateUpperBound)
                 );
             }
 
             if (
                 (!(
-                        Aggregates.CurrentREffLowerBound     >= 1.1m
-                    ||  Aggregates.CurrentREffUpperBound     <= 0.9m
+                        aggregates.CurrentREffLowerBound     >= 1.1m
+                    ||  aggregates.CurrentREffUpperBound     <= 0.9m
                 ))
-                ||  Aggregates.CurrentDoublingTimeLowerBound == 0
-                ||  Aggregates.CurrentDoublingTimeBaseline   == 0
-                ||  Aggregates.CurrentDoublingTimeUpperBound == 0
+                ||  aggregates.CurrentDoublingTimeLowerBound == 0
+                ||  aggregates.CurrentDoublingTimeBaseline   == 0
+                ||  aggregates.CurrentDoublingTimeUpperBound == 0
             ) {
-                Aggregates.CurrentDoublingTimeUnstable = true;
+                aggregates.CurrentDoublingTimeUnstable = true;
             }
         }
 
@@ -474,7 +475,7 @@ namespace CObs
         {
             using(StreamWriter w = new StreamWriter("ResultsData.txt"))
             {
-                foreach (ResultsDay day in ResultsDays)
+                foreach (ResultsDay day in resultsDays)
                 {
                     string line
                       = day.TimelineIndex
@@ -550,31 +551,31 @@ namespace CObs
             using (StreamWriter w = new StreamWriter("Aggregates.txt"))
             {
                 string line
-                  = Aggregates.CurrentREffLowerBound
+                  = aggregates.CurrentREffLowerBound
                   + " ,"
-                  + Aggregates.CurrentREffBaseline
+                  + aggregates.CurrentREffBaseline
                   + " ,"
-                  + Aggregates.CurrentREffUpperBound
+                  + aggregates.CurrentREffUpperBound
                   + " ,"
-                  + Aggregates.CurrentDoublingTimeLowerBound
+                  + aggregates.CurrentDoublingTimeLowerBound
                   + " ,"
-                  + Aggregates.CurrentDoublingTimeBaseline
+                  + aggregates.CurrentDoublingTimeBaseline
                   + " ,"
-                  + Aggregates.CurrentDoublingTimeUpperBound
+                  + aggregates.CurrentDoublingTimeUpperBound
                   + " ,"
-                  + ((Aggregates.CurrentDoublingTimeUnstable) ? 1 : 0)
+                  + ((aggregates.CurrentDoublingTimeUnstable) ? 1 : 0)
                   + " ,"
-                  + Aggregates.ProjectedTotalSeroprevLowerBound
+                  + aggregates.ProjectedTotalSeroprevLowerBound
                   + " ,"
-                  + Aggregates.ProjectedTotalSeroprevBaseline
+                  + aggregates.ProjectedTotalSeroprevBaseline
                   + " ,"
-                  + Aggregates.ProjectedTotalSeroprevUpperBound
+                  + aggregates.ProjectedTotalSeroprevUpperBound
                   + " ,"
-                  + Aggregates.ProjectedTotalMortalityLowerBound
+                  + aggregates.ProjectedTotalMortalityLowerBound
                   + " ,"
-                  + Aggregates.ProjectedTotalMortalityBaseline
+                  + aggregates.ProjectedTotalMortalityBaseline
                   + " ,"
-                  + Aggregates.ProjectedTotalMortalityUpperBound
+                  + aggregates.ProjectedTotalMortalityUpperBound
                   ;
 
                 w.WriteLine(line);
