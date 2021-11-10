@@ -106,9 +106,9 @@ namespace CObs
             Aggregates       = new Aggregates();
         }
 
-        public void ReadDaysRaw(string pFilename)
+        public SourceValidationStatus ReadDaysRaw(string pFilename)
         {
-            ScenarioBaseDays.ReadDaysRaw(pFilename);
+            return ScenarioBaseDays.ReadDaysRaw(pFilename);
         }
 
         public void GenerateScenarios()

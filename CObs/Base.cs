@@ -14,15 +14,50 @@ using System.IO;
 
 namespace CObs
 {
+    public enum SourceRowValidationStatus
+    {
+         OK
+        ,WrongNumberOfColumns
+        ,DateUnreadable
+        ,DateNotContiguous
+        ,DNCUnreadable
+        ,DNCNegative
+        ,TestsUnreadable
+        ,TestsNegative
+        ,PositivityUnreadable
+        ,PositivityNotBetweenZeroAndOneHundred
+        ,MortalityUnreadable
+        ,MortalityNegative
+        ,HospitalizationsUnreadable
+        ,HospitalizationsNegative
+    }
+
+    public class SourceValidationStatus
+    {
+        public bool                      SourceOK  { get; private set; }
+        public int                       RowNumber { get; private set; }
+        public SourceRowValidationStatus RowStatus { get; private set; }
+
+        public SourceValidationStatus(
+             bool                      pSourceOK
+            ,int                       pIndex
+            ,SourceRowValidationStatus pRowStatus
+        ) {
+            SourceOK  = pSourceOK;
+            RowNumber = pIndex + 1;
+            RowStatus = pRowStatus;
+        }
+    }
+
     public class DayRaw
     {
-        public int      TimelineIndex    { get; set; }
-        public DateTime Date             { get; set; }
-        public int      DNC              { get; set; }
-        public int      Tests            { get; set; }
-        public double   Positivity       { get; set; }
-        public int      Mortality        { get; set; }
-        public int      Hospitalizations { get; set; }
+        public int      TimelineIndex    { get; private set; }
+        public DateTime Date             { get; private set; }
+        public int      DNC              { get; private set; }
+        public int      Tests            { get; private set; }
+        public double   Positivity       { get; private set; }
+        public int      Mortality        { get; private set; }
+        public int      Hospitalizations { get; private set; }
 
         public DayRaw(int pIndex, List<string> pRaw)
         {
@@ -39,14 +74,14 @@ namespace CObs
 
     public class DayRolling
     {
-        public DayRaw Raw                           { get; set; }
-        public double Rolling5DayDNC                { get; set; }
-        public double Rolling5DayTests              { get; set; }
-        public double Rolling5DayPositivity         { get; set; }
-        public double Rolling5DayMortality          { get; set; }
-        public double Rolling5DayHospitalizations   { get; set; }
-        public double Rolling101DayMortality        { get; set; }
-        public double Rolling101DayHospitalizations { get; set; }
+        public DayRaw Raw                           { get; private set; }
+        public double Rolling5DayDNC                { get; private set; }
+        public double Rolling5DayTests              { get; private set; }
+        public double Rolling5DayPositivity         { get; private set; }
+        public double Rolling5DayMortality          { get; private set; }
+        public double Rolling5DayHospitalizations   { get; private set; }
+        public double Rolling101DayMortality        { get; private set; }
+        public double Rolling101DayHospitalizations { get; private set; }
 
         public DayRolling(int pIndex, List<DayRaw> pDaysRaw)
         {
@@ -101,9 +136,92 @@ namespace CObs
             DaysRolling = new List<DayRolling>();
         }
 
-        public void ReadDaysRaw(string pFileName)
+        private SourceRowValidationStatus validateSourceRow(
+             List<string> pRow
+            ,DateTime?    pLastDate
+        ) {
+            /* validate a row of source data */
+            DateTime date;
+            int      dnc;
+            int      tests;
+            double   positivity;
+            int      mortality;
+            int      hospitalizations;
+
+            if (pRow.Count != 6)
+            {
+                return SourceRowValidationStatus.WrongNumberOfColumns;
+            }
+
+            if (!DateTime.TryParse(pRow[0], out date))
+            {
+                return SourceRowValidationStatus.DateUnreadable;
+            }
+
+            if (
+                (pLastDate != null)
+            &&  (date.Date != pLastDate.Value.Date.AddDays(1))
+            ) {
+                return SourceRowValidationStatus.DateNotContiguous;
+            }
+
+            if (!int.TryParse(pRow[1], out dnc))
+            {
+                return SourceRowValidationStatus.DNCUnreadable;
+            }
+
+            if (dnc < 0)
+            {
+                return SourceRowValidationStatus.DNCNegative;
+            }
+
+            if (!int.TryParse(pRow[2], out tests))
+            {
+                return SourceRowValidationStatus.TestsUnreadable;
+            }
+
+            if (tests < 0)
+            {
+                return SourceRowValidationStatus.TestsNegative;
+            }
+
+            if (!double.TryParse(pRow[3], out positivity))
+            {
+                return SourceRowValidationStatus.PositivityUnreadable;
+            }
+
+            if (!(positivity >= 0 && positivity <= 100))
+            {
+                return SourceRowValidationStatus.PositivityNotBetweenZeroAndOneHundred;
+            }
+
+            if (!int.TryParse(pRow[4], out mortality))
+            {
+                return SourceRowValidationStatus.MortalityUnreadable;
+            }
+
+            if (mortality < 0)
+            {
+                return SourceRowValidationStatus.MortalityNegative;
+            }
+
+            if (!int.TryParse(pRow[5], out hospitalizations))
+            {
+                return SourceRowValidationStatus.HospitalizationsUnreadable;
+            }
+
+            if (hospitalizations < 0)
+            {
+                return SourceRowValidationStatus.HospitalizationsNegative;
+            }
+
+            return SourceRowValidationStatus.OK;
+        }
+
+        public SourceValidationStatus ReadDaysRaw(string pFileName)
         {
-            int index = 0;
+            int       index    = 0;
+            DateTime? lastDate = null;
 
             /* read raw source data */
             using (StreamReader sr = new StreamReader(pFileName))
@@ -112,12 +230,23 @@ namespace CObs
 
                 while ((line = sr.ReadLine()) != null)
                 {
-                    DaysRaw.Add(
-                        new DayRaw(
-                             index
-                            ,line.Split(',').ToList().Select(entry => entry.Trim()).ToList()
-                        )
-                    );
+                    List<string> row = line.Split(',').ToList().Select(
+                        entry => entry.Trim()
+                    ).ToList();
+
+                    SourceRowValidationStatus status = validateSourceRow(row, lastDate);
+
+                    if (status != SourceRowValidationStatus.OK)
+                    {
+                        /* report validation error */
+                        return new SourceValidationStatus(false, index, status);
+                    }
+
+                    DayRaw day = new DayRaw(index, row);
+
+                    DaysRaw.Add(day);
+
+                    lastDate = day.Date;
 
                     index++;
                 }
@@ -128,6 +257,9 @@ namespace CObs
             {
                 DaysRolling.Add(new DayRolling(raw.TimelineIndex, DaysRaw));
             }
+
+            /* report successful load */
+            return new SourceValidationStatus(true, 0, SourceRowValidationStatus.OK);
         }
     }
 }

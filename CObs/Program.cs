@@ -13,6 +13,68 @@ namespace CObs
 {
     class Program
     {
+        static void reportValidationError(SourceValidationStatus pStatus)
+        {
+            if (!pStatus.SourceOK)
+            {
+                string error;
+
+                Console.WriteLine(
+                    "CObs build: validation error reading SourceData.txt on line "
+                  + pStatus.RowNumber
+                  + "."
+                );
+
+                switch (pStatus.RowStatus)
+                {
+                    case SourceRowValidationStatus.WrongNumberOfColumns:
+                        error = "had wrong number of columns";
+                        break;
+                    case SourceRowValidationStatus.DateUnreadable:
+                        error = "had unreadable date";
+                        break;
+                    case SourceRowValidationStatus.DateNotContiguous:
+                        error = "date was not contiguous with previous row";
+                        break;
+                    case SourceRowValidationStatus.DNCUnreadable:
+                        error = "had unreadable DNC";
+                        break;
+                    case SourceRowValidationStatus.DNCNegative:
+                        error = "had negative DNC";
+                        break;
+                    case SourceRowValidationStatus.TestsUnreadable:
+                        error = "had unreadable Tests";
+                        break;
+                    case SourceRowValidationStatus.TestsNegative:
+                        error = "had negative Tests";
+                        break;
+                    case SourceRowValidationStatus.PositivityUnreadable:
+                        error = "had unreadable Positivity";
+                        break;
+                    case SourceRowValidationStatus.PositivityNotBetweenZeroAndOneHundred:
+                        error = "had Positivity not between 0 and 100";
+                        break;
+                    case SourceRowValidationStatus.MortalityUnreadable:
+                        error = "had unreadable Hospitalizations";
+                        break;
+                    case SourceRowValidationStatus.MortalityNegative:
+                        error = "had negative Hospitalizations";
+                        break;
+                    case SourceRowValidationStatus.HospitalizationsUnreadable:
+                        error = "had unreadable Hospitalizations";
+                        break;
+                    case SourceRowValidationStatus.HospitalizationsNegative:
+                        error = "had negative Hospitalizations";
+                        break;
+                    default:
+                        error = "had unknown error";
+                        break;
+                }
+
+                Console.WriteLine("CObs build: row " + error + ".");
+            }
+        }
+
         static void Main(string[] args)
         {
             /*
@@ -25,7 +87,20 @@ namespace CObs
                 "CObs build: reading daily data and computing rolling averages..."
             );
 
-            builder.ReadDaysRaw("SourceData.txt");
+            SourceValidationStatus status = builder.ReadDaysRaw("SourceData.txt");
+
+            if (!status.SourceOK)
+            {
+                reportValidationError(status);
+
+                if (keyToExit)
+                {
+                    Console.WriteLine("\nPress any key to exit.");
+                    Console.ReadKey();
+                }
+
+                Environment.Exit(1);
+            }
 
             Console.WriteLine(
                 "CObs build: generating scenarios..."
@@ -64,6 +139,8 @@ namespace CObs
                 Console.WriteLine("\nPress any key to exit.");
                 Console.ReadKey();
             }
+
+            Environment.Exit(0);
         }
     }
 }
