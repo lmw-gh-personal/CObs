@@ -55,10 +55,10 @@ namespace CObs
                         error = "had Positivity not between 0 and 100";
                         break;
                     case SourceRowValidationStatus.MortalityUnreadable:
-                        error = "had unreadable Hospitalizations";
+                        error = "had unreadable Mortality";
                         break;
                     case SourceRowValidationStatus.MortalityNegative:
-                        error = "had negative Hospitalizations";
+                        error = "had negative Mortality";
                         break;
                     case SourceRowValidationStatus.HospitalizationsUnreadable:
                         error = "had unreadable Hospitalizations";
