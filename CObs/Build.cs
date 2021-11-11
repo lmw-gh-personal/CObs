@@ -538,8 +538,7 @@ namespace CObs
                       + " ,"
                       + day.DoublingTimeBaseline
                       + " ,"
-                      + day.DoublingTimeUpperBound
-                      ;
+                      + day.DoublingTimeUpperBound;
 
                     w.WriteLine(line);
                     w.Flush();
@@ -575,8 +574,7 @@ namespace CObs
                   + " ,"
                   + aggregates.ProjectedTotalMortalityBaseline
                   + " ,"
-                  + aggregates.ProjectedTotalMortalityUpperBound
-                  ;
+                  + aggregates.ProjectedTotalMortalityUpperBound;
 
                 w.WriteLine(line);
                 w.Flush();
