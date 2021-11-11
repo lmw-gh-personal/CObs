@@ -91,10 +91,10 @@ namespace CObs
 
         /* parameters and source data */
         private double                  ifr                           { get; set; }
+        private int                     medianTimeFromExposureToTest  { get; set; }
         private int                     medianTimeToAdmission         { get; set; }
         private int                     medianHospitalizationDuration { get; set; }
         private int                     medianTimeToMortality         { get; set; }
-        private int                     medianTimeFromExposureToTest  { get; set; }
         private double                  medianSerialInterval          { get; set; }
         private double                  transmissibilityWindowToSI    { get; set; }
 
@@ -109,10 +109,10 @@ namespace CObs
             daysRolling                   = pBaseDays.DaysRolling;
 
             ifr                           = pScenarioParameters.IFR;
+            medianTimeFromExposureToTest  = pScenarioParameters.MedianTimeFromExposureToTest;
             medianTimeToAdmission         = pScenarioParameters.MedianTimeToAdmission;
             medianHospitalizationDuration = pScenarioParameters.MedianHospitalizationDuration;
             medianTimeToMortality         = pScenarioParameters.MedianTimeToMortality;
-            medianTimeFromExposureToTest  = pScenarioParameters.MedianTimeFromExposureToTest;
             medianSerialInterval          = pScenarioParameters.MedianSerialInterval;
             transmissibilityWindowToSI    = pScenarioParameters.TransmissibilityWindowToSI;
 
