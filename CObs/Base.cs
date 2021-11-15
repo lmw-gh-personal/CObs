@@ -14,6 +14,7 @@ using System.IO;
 
 namespace CObs
 {
+    // the leading commas look very odd to my eyes, maybe this is a c# thing IDK
     public enum SourceRowValidationStatus
     {
          OK
@@ -253,7 +254,7 @@ namespace CObs
             }
 
             /* populate rolling averages */
-            foreach (DayRaw raw in DaysRaw)
+            foreach (DayRaw raw in DaysRaw) // I think `var raw in DaysRaw` would be nicer and just let the compiler infer the type here since it's quite obvious what the type is here
             {
                 DaysRolling.Add(new DayRolling(raw.TimelineIndex, DaysRaw));
             }
