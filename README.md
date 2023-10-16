@@ -16,7 +16,7 @@
 * [Command Line Arguments](#command-line-arguments)
 * [Contributions and Extensions](#contributions-and-extensions)
 * [Technical Notes](#technical-notes)
-* [License](#license)
+* [Author and License](#author-and-license)
 
 ### Platform Notes
 
@@ -442,7 +442,9 @@ constructed mocks to serve as reference data sets against which pipeline outputs
 
 CObs has received thorough smoke testing for consistency and smell testing for correctness.
 
-### License
+### Author and License
+
+Author: Liam Widdess
 
 All code, assets and results data are licensed under the [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0).
 
