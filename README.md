@@ -21,7 +21,7 @@
 ### Platform Notes
 
 CObs is implemented in C# for .NET 6 or greater, uses Apache Open Office for data visualization, and
-is run through [codefactor.io](https://codefactor.io) static analysis for code quality.
+is run through the [codefactor.io](https://codefactor.io) static analysis tool for code quality.
 
 ### Introduction
 
