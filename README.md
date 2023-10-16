@@ -21,7 +21,7 @@
 ### Platform Notes
 
 CObs is implemented in C# for .NET 6 or greater, uses Apache Open Office for data visualization, and
-is run through [codefactor.io](https://codefactor.io) for code quality static analysis.
+is run through [codefactor.io](https://codefactor.io) static analysis for code quality.
 
 ### Introduction
 
@@ -41,9 +41,7 @@ sources, CObs accounts properly for the time-intervals between transmission, and
 of reporting event.
 
 Low, baseline and high [transmission estimates](#transmission-b117) are provided by running the
-model over a large collection of scenarios, generated from a range of input parameters for both
-the various time-intervals, and epidemiological parameters such as IFR (Infection Fatality Ratio)
-and Median Serial Interval between transmission events.
+model over a large collection of scenarios generated from a range of epidemiological input parameters.
 
 CObs also extracts and in some cases plots, transmission metrics such as [R-effective](#r-eff-2020),
 and doubling time.
@@ -101,10 +99,9 @@ lockdown at high incidence. R-effective dropped rapidly and unambiguously below 
 
 <a id="r-eff-2020">![R-effective in 2020 related to level of NPIs](https://github.com/lmw-gh-2020/CObs/blob/assets/R-Eff-Annotated.png)</a>
 
-Pointing out this correspondence is not intended to serve as a political critique of the
-desirability or otherwise of NPIs as a response to this or any other epidemic, though the
-author notes that if they are going to be instituted, then best to move fast at low
-incidence, as delayed responses often result in "worst of both worlds" outcomes.
+The result set corroborates the principle of rapid response, namely that if NPIs are going
+to adopted as an epidemic response at all, then best to move fast at low incidence, as delayed
+responses often result in "worst of both worlds" outcomes.
 
 ### Project Scope
 
