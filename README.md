@@ -7,9 +7,9 @@
 
 * [Platform Notes](#platform-notes)
 * [Introduction](#introduction)
+* [Headline Results (with screenshots)](#headline-results-with-screenshots)
 * [Project Scope](#project-scope)
 * [Model Features](#model-features)
-* [Sample Results (with screenshots)](#sample-results-with-screenshots)
 * [Model Performance](#model-performance)
 * [Results Quick Start](#results-quick-start)
 * [Workflow Quick Start](#workflow-quick-start)
@@ -20,9 +20,8 @@
 
 ### Platform Notes
 
-CObs is implemented in C# for the .NET Framework, (it may also be built for .NET Core), uses Apache
-Open Office for data visualization, and is run through [codefactor.io](https://codefactor.io) for
-automated code quality analysis and review.
+CObs is implemented in C# for .NET 6 or greater, uses Apache Open Office for data visualization, and
+is run through [codefactor.io](https://codefactor.io) for code quality static analysis.
 
 ### Introduction
 
@@ -35,7 +34,7 @@ incorporates:
 - Reported Cases
 - Deployed Test Capacity/Test Positivity Percentage
 
-The results feed into an integrated dashboard for data visualization and review.
+The results feed into an integrated dashboard for nowcasting, data visualization and review.
 
 Unlike most dashboards, which do no modeling and present only raw "live" feeds from disparate
 sources, CObs accounts properly for the time-intervals between transmission, and the various types
@@ -53,7 +52,59 @@ CObs was initially run on public health data published by the Government of Hung
 Hungary as the target region, and the releases include a bundle of historical data generated
 for Hungary for the period from 2020-10-04 to 2021-05-03.
 
-To start viewing these results straight away, jump to [Results Quick Start](#results-quick-start).
+### Headline Results (with screenshots)
+
+Here for illustrative purposes are some sample results, with annotations, from the Hungary
+2020-2021 CObs run.
+
+#### Transmission
+
+CObs provided timely warning of the arrival of the B.1.1.7 (Alpha) SARS-CoV-2 VOC
+(Variant Of Concern) in Hungary in early February 2021, by quickly attaining a clear local
+minimum and subsequent uptick in estimated transmission. Even under relatively stringent
+NPIs, (Non Pharmaceutical Interventions), once the surge took off the results were dramatic.
+
+<a id="transmission-b117">![B.1.1.7 Transmission Surge](https://github.com/lmw-gh-2020/CObs/blob/assets/Transmission-Surge-B117.png)</a>
+
+Note that CObs currently operates from a fixed set of epidemiological scenario parameters, so
+IFR and other related parameters were not tweaked to reflect the altered characteristics of
+the ecologically dominant pathogen, which will have lead to some degree of overestimation of
+transmission in the latter part of the run, (by back-of-the-envelope reasoning, probably
+around a third).
+
+As the main purpose of CObs is to gain a rapid first-order handle on the magnitude and direction
+of travel of the epidemic under observation, this was perfectly acceptable in terms of
+[project scope](#project-scope).
+
+#### R-effective
+
+While the model is agnostic as to whether a drop in transmission is due to persons acquiring
+strong sterilizing immunity to the pathogen or because they have reduced their exposure
+via social distancing, the correspondence in the Hungary 2020-2021 CObs run between
+computed baseline R-effective and dramatic on-the-ground logistical changes in the stringency
+of NPIs was striking, both in terms of timely indication of changes, and in overview.
+
+Here we can see how inferred R-effective tracks closely with the underlying dynamics of
+societal pandemic response as occurred in Hungary in the second half of 2020:
+
+- **Summer 2020**: A period of almost entirely uncontrolled rapid cryptic transmission at
+low incidence is observable in the second half of the summer, with R-effective close to the
+R-0 of the original wild-type SARS-CoV-2 variant. This corresponds to the "summer
+tourism reopening" period of relatively unrestricted travel and tourism in Hungary.
+- **Autumn 2020**: A period of increasingly severe NPIs were instituted over the autumn
+at medium and high incidence, (including a test capacity surge with aggressive home
+quarantine orders, mask mandates, and increasingly strict but partial school and business
+closures) that resulted in a considerably reduced R-effective still above 1, amounting to
+a failed attempt at resurgence control.
+- **Winter 2020**: Mounting healthcare capacity saturation led to the institution of a full
+lockdown at high incidence. R-effective dropped rapidly and unambiguously below 1.
+
+<a id="r-eff-2020">![R-effective in 2020 related to level of NPIs](https://github.com/lmw-gh-2020/CObs/blob/assets/R-Eff-Annotated.png)</a>
+
+Pointing out this correspondence is not intended to serve as a political critique of the
+desirability or otherwise of NPIs as a response to this or any other epidemic, though the
+author notes that if they are going to be instituted, then best to move fast at low
+incidence, as delayed responses often result in "worst of both worlds" outcomes.
 
 ### Project Scope
 
@@ -228,60 +279,6 @@ metrics have been determined, the following current and cumulative model aggrega
 - **Cumulative Seroprevalence**
 
 Ranged estimates, (low, baseline and high) are provided for each aggregate.
-
-### Sample Results (with screenshots)
-
-Here for illustrative purposes are some sample results, with annotations, from the Hungary
-2020-2021 CObs run.
-
-#### Transmission
-
-CObs provided timely warning of the arrival of the B.1.1.7 (Alpha) SARS-CoV-2 VOC
-(Variant Of Concern) in Hungary in early February 2021, by quickly attaining a clear local
-minimum and subsequent uptick in estimated transmission. Even under relatively stringent
-NPIs, (Non Pharmaceutical Interventions), once the surge took off the results were dramatic.
-
-<a id="transmission-b117">![B.1.1.7 Transmission Surge](https://github.com/lmw-gh-2020/CObs/blob/assets/Transmission-Surge-B117.png)</a>
-
-Note that CObs currently operates from a fixed set of epidemiological scenario parameters, so
-IFR and other related parameters were not tweaked to reflect the altered characteristics of
-the ecologically dominant pathogen, which will have lead to some degree of overestimation of
-transmission in the latter part of the run, (by back-of-the-envelope reasoning, probably
-around a third).
-
-As the main purpose of CObs is to gain a rapid first-order handle on the magnitude and direction
-of travel of the epidemic under observation, this was perfectly acceptable in terms of
-[project scope](#project-scope).
-
-#### R-effective
-
-While the model is agnostic as to whether a drop in transmission is due to persons acquiring
-strong sterilizing immunity to the pathogen or because they have reduced their exposure
-via social distancing, the correspondence in the Hungary 2020-2021 CObs run between
-computed baseline R-effective and dramatic on-the-ground logistical changes in the stringency
-of NPIs was striking, both in terms of timely indication of changes, and in overview.
-
-Here we can see how inferred R-effective tracks closely with the underlying dynamics of
-societal pandemic response as occurred in Hungary in the second half of 2020:
-
-- **Summer 2020**: A period of almost entirely uncontrolled rapid cryptic transmission at
-low incidence is observable in the second half of the summer, with R-effective close to the
-R-0 of the original wild-type SARS-CoV-2 variant. This corresponds to the "summer
-tourism reopening" period of relatively unrestricted travel and tourism in Hungary.
-- **Autumn 2020**: A period of increasingly severe NPIs were instituted over the autumn
-at medium and high incidence, (including a test capacity surge with aggressive home
-quarantine orders, mask mandates, and increasingly strict but partial school and business
-closures) that resulted in a considerably reduced R-effective still above 1, amounting to
-a failed attempt at resurgence control.
-- **Winter 2020**: Mounting healthcare capacity saturation led to the institution of a full
-lockdown at high incidence. R-effective dropped rapidly and unambiguously below 1.
-
-<a id="r-eff-2020">![R-effective in 2020 related to level of NPIs](https://github.com/lmw-gh-2020/CObs/blob/assets/R-Eff-Annotated.png)</a>
-
-Pointing out this correspondence is not intended to serve as a political critique of the
-desirability or otherwise of NPIs as a response to this or any other epidemic, though the
-author notes that if they are going to be instituted, then best to move fast at low
-incidence, as delayed responses often result in "worst of both worlds" outcomes.
 
 ### Model Performance
 
