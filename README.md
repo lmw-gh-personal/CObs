@@ -13,7 +13,7 @@
 * [Model Performance](#model-performance)
 * [Results Quick Start](#results-quick-start)
 * [Workflow Quick Start](#workflow-quick-start)
-* [Developer Quick Start](#developer-quick-start)
+* [Command Line Arguments](#command-line-arguments)
 * [Contributions and Extensions](#contributions-and-extensions)
 * [Technical Notes](#technical-notes)
 * [License](#license)
@@ -100,13 +100,13 @@ lockdown at high incidence. R-effective dropped rapidly and unambiguously below 
 <a id="r-eff-2020">![R-effective in 2020 related to level of NPIs](https://github.com/lmw-gh-2020/CObs/blob/assets/R-Eff-Annotated.png)</a>
 
 The result set corroborates the principle of rapid response, namely that if NPIs are going
-to adopted as an epidemic response at all, then best to move fast at low incidence, as delayed
+to adopted as an epidemic response at all, then best to move fast at low incidence as delayed
 responses often result in "worst of both worlds" outcomes.
 
 ### Project Scope
 
 The initial purpose of the CObs pipeline and integrated dashboard, was to provide as near real-time
-as possible monitoring of local SARS-CoV-2 transmission in Hungary during the period 2020-2021, as
+as possible nowcasting of local SARS-CoV-2 transmission in Hungary during the period 2020-2021, as
 a means of obtaining general situational awareness regarding the state of the pandemic in Hungary.
 
 The model is, broadly speaking, observational rather then predictive. It covers the time period up
@@ -132,14 +132,13 @@ Currently CObs is somewhat inflexible regarding the format of the CSV file that 
 data, and uses hardcoded epidemiological parameter ranges and population size, rather than configurable
 ones.
 
-These restrictions on its usage can potentially be remedied easily enough, (c.f.
+These restrictions on its usage could potentially be remedied easily enough, (c.f.
 [Contributions and Extensions](#contributions-and-extensions)) rendering it suitable for
 configuration and use for monitoring any sufficiently sizeable, broadly IFR-stable epidemic, for
 any pathogen, in any target region. Some extra degree of flexibility over the type and format
-of source data pipeline inputs could also be added. If extended in such a way, the project should
-probably be renamed EObs.
+of source data pipeline inputs could also be added were there sufficient interest.
 
-Note however, that thus far CObs is a single author volunteer project.
+CObs is a single author volunteer open source project.
 
 ### Model Features
 
@@ -188,7 +187,7 @@ The computed daily transmission metrics for each scenario are: **growth rate**, 
 **doubling time**.
 
 The parameter ranges currently used by CObs were obtained via an informal, (non-systematic) survey of the
-literature, to which the author has unfortunately not kept references.
+literature.
 
 #### Scenario Internals
 
@@ -222,11 +221,11 @@ averages around the boundary).
 - **Retrodicted Transmission:** Transmission for the time period from one median-time-from-exposure-to-test
 until the current day is simulated, now that all three signals are offline and we are flying blind.
 The simulated values are based on the last seen magnitude of transmission and last seen growth exponent,
-(or rather suitably smoothed rolling average versions thereof).
+(or rather, suitably smoothed rolling average versions thereof).
 
 During the test-results-only based period, signal unreliability due to drift in deployed test
 capacity and test positivity is compensated for, by adjusting the reported-to-real ratio
-accordingly. For an extreme example that illustrates why this is important, were deployed
+accordingly. For an extreme example that illustrates why this is significant, were deployed
 test capacity to suddenly drop to one tenth of yesterday's reported cases with 100% positivity,
 it doesn't mean real-world transmission has suddenly dropped by an order of magnitude!
 
@@ -292,14 +291,14 @@ in transmission, due to temporarily wide spread in extracted transmission metric
 is hard. R-effective is a much more useful metric to track. Given the good performance
 characteristics of baseline transmission estimates, narrower scenario input parameter ranges would
 have been justified and would have yielded more stable doubling times.
-- The model tends to produce markedly truncated transmission peaks at high incidence, which the author
-strongly suspects to be an artifact both of logistical saturation in real world reporting systems,
-and of an effective cap on admissions that comes into effect while emergency triage conditions pertain
-during periods of healthcare capacity strain.
+- The model tends to produce markedly truncated transmission peaks at high incidence. This is likely
+to be an artifact both of logistical saturation in real world reporting systems, and of an effective
+cap on admissions that comes into effect while emergency triage conditions pertain during periods of
+healthcare capacity strain.
 - The model also briefly fluctuates wildly around some pretty odd artifacts in the reporting of
 deployed test capacity. Even with a clean modelling pipeline, garbage in begets garbage out.
 
-Overall the model served well as a first-order, as close to real time as possible monitoring tool
+Overall the model served well as a first-order, as close to real-time as possible monitoring tool
 for the basic magnitude and direction of travel of transmission during the epidemic in the target
 region, as intended.
 
@@ -364,21 +363,18 @@ a suitably named file with some kind of datestamp in the filename. Then open the
 "**Edit -> Links...**" from the Calc menu bar, choose "**Break Link**" for both linked files,
 and then save the changes.
 
-There is currently no macro to automate this step, (as Apache Open Office macros tend to be
-somewhat tricky to set up a working environment for).
+There is no macro to automate this step, (as Apache Open Office macros tend to be somewhat tricky
+to set up a working environment for).
 
 #### Requirements
 
-The bundled version of `CObs.exe` runs on any version of Microsoft Windows having .NET Framework
-`4.6.1` or higher installed, (though it is possible for developers to build a version that runs
-as a console application on any operating system with .NET Core `2.0` or higher installed,
-including Windows, Linux, Mac, et al.). The bundled version of the live results viewer `CObsMain.ods`
-requires a functioning installation of Apache Open Office `4.1.7` or later.
+The bundled version of `CObs.exe` is a single file executable that runs on Microsoft Windows 8 or
+higher, (though it is possible for developers to build a version that runs as a console application
+on any operating system capable of running applications for .NET 6 or higher, including Linux, Mac,
+et al.). The bundled version of the live results viewer `CObsMain.ods` requires a functioning
+installation of Apache Open Office `4.1.7` or later.
 
-As the workflow bundle contains an unsigned built executable `CObs.exe`, you may prefer to build
-the program from source yourself, depending on your environment.
-
-### Developer Quick Start
+### Command Line Arguments
 
 By default `CObs.exe` prompts the user "Press any key to exit.", as the most common use case
 is that the user double clicked on the executable in a File Explorer, launching a console that
@@ -389,30 +385,9 @@ model pipeline build progress.
 via script as `CObs.exe nokey`. This is to facilitate uninterrupted batch processing of multiple
 data sources.
 
-The simplest way to build `CObs` as a .NET Core console application is to create a blank
-.NET Core console application project in an appropriate development environment, add the files
-from `master`:
-
-- `Base.cs`
-- `Build.cs`
-- `Parameters.cs`
-- `Program.cs`
-- `Scenario.cs`
-
-into the project at root level, and build.
-
-#### Requirements
-
-A functioning build environment for .NET Framework `4.6.1` or greater, or .NET Core `2.0` or greater.
-You know what to do.
-
 ### Contributions and Extensions
 
 Note that CObs is a single author volunteer project.
-
-In terms of implementing new features or extensions, the author may be prepared to spend limited time on
-implementation and/or reviewing pull requests from contributors, particularly if intended for serious enough
-routine usage by third parties in a formal research or public health context.
 
 Low hanging fruit that would render CObs suitable for use for any sufficiently sizeable, broadly IFR-stable
 epidemic in an immunologically homogeneous population, for any pathogen, for any target region would include:
@@ -429,27 +404,28 @@ CObs is open source, so anyone is free to experiment with it and potentially for
 
 #### Machine Performance
 
-CObs.exe takes about 30 seconds to process a year's worth of data on a standard i8 laptop. Currently
-scenario day slice selection and sorting in the results extraction phase is performed by untuned .NET
-LINQ expressions, causing this to slow down to approximately 15 minutes on a standard i8 laptop for a
-large six year test data set. In principle performance should be linear on the size of the source data,
+CObs.exe takes about 30 seconds to process a year's worth of data on a standard i8 laptop from circa 2020.
+Currently scenario day slice selection and sorting in the results extraction phase is performed by
+untuned .NET LINQ expressions, causing this to slow down to approximately 15 minutes on a standard i8 laptop
+for a large six year test data set. In principle performance should be linear on the size of the source data,
 as all computations are time-local apart from a few trivial linear sums to extract cumulative aggregates.
+
 Day slice selection via a sensible flat indexing mechanism would help considerably here, though the
 current performance characteristics are perfectly fine given the use requirements.
 
 #### Why Apache Open Office?
 
-An open source visualizer of some kind was desired, ruling out Microsoft Excel, (also the author did
-not have a personal copy of Excel to hand at the time). A web-based visualization package would clearly
-be a desirable feature set for publishing and sharing results. However, compared to the feature rich
-code-free out-of-the-box capabilities of a fully fledged spreadsheet package, achieving a similar result
-with a web-based graphing and presentation layer would have been a lot of extra work to implement.
+An open source visualizer of some kind was desired, ruling out Microsoft Excel. A web-based visualization
+package would clearly be better suited for publishing and sharing results. However, compared to the quick to
+use zero-code out-of-the-box capabilities of a spreadsheet package, achieving a similar result with a web-based
+graphing and presentation layer, (e.g. via [chart.js](https://www.chartjs.org/)) would have taken an impractical
+amount of implementation time.
 
 #### Testing and Design
 
 Historically, CObs was initially thrown together and used in production to start generating crude
 results as piece of one-shot data analysis for distribution to a small offline audience, i.e. it
-began as an exploratory coding spike in Agile development terms.
+began as an exploratory coding spike in Agile terms.
 
 Since then it has been run routinely, deemed good enough to keep, and iterated over and refactored
 a few times. The class design is relatively clean, with clear contracts and limited redundant
@@ -457,31 +433,14 @@ dependency between the classes, (though the classes are a little overloaded with
 and could use being split out some more, and scenarios would be cleaner if refactored to be
 stateless).
 
-While the author is generally an advocate of class structures informed and refined by TDD/BDD in the
-right context, CObs has not currently been brought under unit test. Partly this is due to the manner
-in which development history interacted with project resource constraints. Given that the program is
-relatively small, and has simple internal contracts between classes and few external dependencies,
-the potential value of unit testing in also providing meaningful regression tests is fairly limited.
+While the author is a strong advocate of class design informed and refined by TDD in suitable
+context, CObs has not currently been brought under automated test. This is largely due to the manner
+in which development history interacted with project resource constraints. It's also of note that
+in this context, simple unit tests would protect against breaking changes in terms of consistency,
+but wouldn't surface behaviour in terms of mathematical correctness without extensive, painstakingly
+constructed mocks to serve as reference data sets against which pipeline outputs could be compared.
 
-In terms of regression testing for consistency, unit tests would do little more than verify that
-the program indeed reads a correctly formatted CSV file and outputs two CSV files in the right
-format, and that various internal public methods do indeed read and return certain lists of expected
-row structures.
-
-Regression testing for mathematical model correctness would be a huge undertaking involving
-the careful and painstaking independent preparation of comprehensive test data source and result
-sets, almost tantamount to developing and running a fully independent reference implementation.
-Such an effort would be appropriate were CObs being integrated into a fully fledged SEIR modelling
-lab product of some kind, or being used in some industrial setting with high-reliability
-requirements, but is clearly outside the current scope of the project.
-
-CObs has received large quantities of smoke testing for consistency and smell testing for
-correctness. While unit testing would still potentially be useful to provide a basic test-harness
-and inform any future design, there are no plans to bring CObs under unit test at this time.
-
-Do not adapt CObs for the real-time monitoring of potential runaway conditions in nuclear reactors,
-(c.f. the limitation of liability and disclaimer of warranty clauses in the [software license](#license)
-below).
+CObs has received thorough smoke testing for consistency and smell testing for correctness.
 
 ### License
 
