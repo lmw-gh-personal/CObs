@@ -1,6 +1,6 @@
 # ![CObs COVID Observational Model](https://github.com/lmw-gh-2020/CObs/blob/assets/CObs-Banner.png)
 
-![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/lmw-gh-2020/CObs)
+[![CodeFactor](https://www.codefactor.io/repository/github/lmw-gh-personal/cobs/badge)](https://www.codefactor.io/repository/github/lmw-gh-personal/cobs)
 ![GitHub top language](https://img.shields.io/github/languages/top/lmw-gh-2020/CObs)
 
 ## CObs COVID Observational Model
